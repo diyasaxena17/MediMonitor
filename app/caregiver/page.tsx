@@ -1,10 +1,18 @@
 'use client';
 
 import { useMedication } from '../MedicationContext';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
 export default function CaregiverPage() {
   const { logs } = useMedication();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    // This is intentional to prevent hydration issues with localStorage
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+  }, []);
 
   const formatTime = (date: Date) => {
     return new Date(date).toLocaleString('en-US', {
@@ -16,6 +24,18 @@ export default function CaregiverPage() {
       hour12: true,
     });
   };
+
+  if (!mounted) {
+    return (
+      <main className="min-h-screen bg-gray-50 p-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center py-12 text-gray-500 text-xl">
+            Loading...
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   const takenLogs = logs.filter(log => log.taken);
   const missedLogs = logs.filter(log => !log.taken);
