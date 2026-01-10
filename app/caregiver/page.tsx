@@ -3,8 +3,11 @@
 import { useMedication } from '../MedicationContext';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { MedicationLog } from '../types';
+import { useSession, signIn, signOut } from 'next-auth/react';
 
 export default function CaregiverPage() {
+  const { status } = useSession();
   const { logs } = useMedication();
   const [mounted, setMounted] = useState(false);
 
@@ -37,8 +40,31 @@ export default function CaregiverPage() {
     );
   }
 
-  const takenLogs = logs.filter(log => log.taken);
-  const missedLogs = logs.filter(log => !log.taken);
+  if (status === 'unauthenticated') {
+    return (
+      <main className="min-h-screen bg-gray-50 p-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="bg-white rounded-2xl shadow p-8 text-center space-y-6">
+            <h1 className="text-4xl font-bold text-black">Caregiver Dashboard</h1>
+            <p className="text-lg text-gray-700">Please sign in to view the dashboard.</p>
+            <div className="flex justify-center gap-4">
+              <Link href="/" className="text-xl underline text-gray-700 hover:text-black">Back to Home</Link>
+              <button
+                onClick={() => signIn('google')}
+                className="py-3 px-6 bg-blue-600 text-white text-xl font-bold rounded-2xl hover:bg-blue-700 active:bg-blue-800"
+                aria-label="Sign in with Google"
+              >
+                Sign in with Google
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  const takenLogs = logs.filter((log: MedicationLog) => log.taken);
+  const missedLogs = logs.filter((log: MedicationLog) => !log.taken);
 
   return (
     <main className="min-h-screen bg-gray-50 p-8">
@@ -51,6 +77,15 @@ export default function CaregiverPage() {
           >
             ← Back to Home
           </Link>
+          <div className="float-right">
+            <button
+              onClick={() => signOut()}
+              className="py-2 px-4 bg-gray-900 text-white text-sm font-bold rounded-xl hover:bg-gray-800 active:bg-gray-700"
+              aria-label="Sign out"
+            >
+              Sign out
+            </button>
+          </div>
           <h1 className="text-5xl font-bold text-black mb-2">
             Caregiver Dashboard
           </h1>
@@ -91,7 +126,7 @@ export default function CaregiverPage() {
             </div>
           ) : (
             <div className="space-y-4">
-              {logs.map((log) => (
+              {logs.map((log: MedicationLog) => (
                 <div
                   key={log.id}
                   className={`flex justify-between items-center p-6 rounded-xl border-2 ${

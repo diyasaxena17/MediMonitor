@@ -4,6 +4,10 @@ An accessibility-first medication adherence tracking application built for healt
 
 Contributor: Disha
 
+## 🔗 Live Demo
+
+Visit the production deployment on Vercel: https://medimonitor-app.vercel.app
+
 ## ✨ Features
 
 - **Accessibility-First Design**: Large, high-contrast UI optimized for visibility
@@ -99,6 +103,20 @@ Alternatively, you can deploy using the Vercel CLI:
 npm install -g vercel
 vercel
 ```
+
+### Environment Variables (Auth)
+
+To enable Google login, set these in your Vercel project settings or `.env.local`:
+
+- `GOOGLE_CLIENT_ID`: Google OAuth Client ID
+- `GOOGLE_CLIENT_SECRET`: Google OAuth Client Secret
+- `NEXTAUTH_SECRET`: A long random string for JWT/session encryption
+- `NEXTAUTH_URL`: Your app URL (e.g., https://medimonitor-app.vercel.app)
+
+Create OAuth credentials at Google Cloud Console → Credentials → OAuth client ID.
+Authorized redirect URIs:
+- `https://medimonitor-app.vercel.app/api/auth/callback/google` (Production)
+- `http://localhost:3000/api/auth/callback/google` (Local)
 
 ## 🎯 Use Cases
 

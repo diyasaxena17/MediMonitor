@@ -33,7 +33,16 @@ vercel --prod
 
 ## Environment Variables
 
-This app doesn't require any environment variables. All data is stored locally in the browser.
+For basic usage, no env vars are required. To enable Google Login (NextAuth), set:
+
+- `GOOGLE_CLIENT_ID`
+- `GOOGLE_CLIENT_SECRET`
+- `NEXTAUTH_SECRET`
+- `NEXTAUTH_URL`
+
+Google OAuth redirect URIs:
+- Production: `https://medimonitor-app.vercel.app/api/auth/callback/google`
+- Local: `http://localhost:3000/api/auth/callback/google`
 
 ## Build Settings
 
@@ -53,7 +62,7 @@ Vercel will automatically use:
 ## Post-Deployment
 
 After deployment, your app will be available at:
-- Production: `https://your-project.vercel.app`
+- Production: https://medimonitor-app.vercel.app
 - Preview deployments for each PR
 
 ## Troubleshooting

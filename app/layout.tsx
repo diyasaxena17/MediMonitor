@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { MedicationProvider } from "./MedicationContext";
+import Providers from "./Providers";
 
 export const metadata: Metadata = {
   title: "MediMonitor - Medication Adherence",
   description: "Accessibility-first medication adherence tracking app",
+  metadataBase: new URL("https://medimonitor-app.vercel.app"),
 };
 
 export default function RootLayout({
@@ -15,9 +16,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        <MedicationProvider>
+        <Providers>
           {children}
-        </MedicationProvider>
+        </Providers>
       </body>
     </html>
   );
