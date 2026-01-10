@@ -2,6 +2,8 @@
 
 An accessibility-first medication adherence tracking application built for healthcare hackathons. MediMonitor helps patients remember to take their medications and enables caregivers to monitor adherence patterns.
 
+Contributor: Disha
+
 ## ✨ Features
 
 - **Accessibility-First Design**: Large, high-contrast UI optimized for visibility
