@@ -12,9 +12,10 @@ Visit the production deployment on Vercel: https://medimonitor-app.vercel.app
 
 - **Accessibility-First Design**: Large, high-contrast UI optimized for visibility
 - **Text-to-Speech Integration**: Browser-based voice reminders and feedback
-- **Simple Medication Logging**: One-click button to log medication intake
-- **Caregiver Dashboard**: Monitor taken/missed medications with timestamps
-- **No Authentication Required**: Quick setup with localStorage-based state
+- **Simple Medication Logging**: One-tap taken/missed logging with instant feedback
+- **Caregiver Dashboard**: Monitor adherence patterns with real-time timestamps
+- **Google Authentication**: Secure sign-in with Google OAuth via NextAuth
+- **Vercel Analytics**: Built-in usage tracking for insights
 - **Fully Responsive**: Works on all devices and screen sizes
 
 ## 🚀 Quick Start
@@ -42,17 +43,25 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## 📱 Pages
 
-### Home Page (`/`)
-- Large, high-contrast message: "Time to take your medication"
-- Prominent button: "I took my medication"
-- Automatic text-to-speech announcement
-- Visual and audio confirmation on button click
+### Landing Page (`/`)
+- Professional sign-in hero with product branding
+- Google authentication (sign in / sign up)
+- Quick access to tracker and caregiver dashboard
+- Feature highlights and value proposition
+
+### Tracker Page (`/track`)
+- Large, high-contrast medication reminder
+- One-tap "I took my medication" and "I did not take it" buttons
+- Automatic text-to-speech announcements
+- Visual and audio confirmation on logging
+- Link to caregiver dashboard
 
 ### Caregiver Dashboard (`/caregiver`)
+- Protected route (requires Google sign-in)
 - Summary statistics (taken vs. missed medications)
 - Chronological log of all medication events
 - Visual status indicators with timestamps
-- Easy navigation back to home page
+- Sign-out control
 
 ## 🛠️ Tech Stack
 
