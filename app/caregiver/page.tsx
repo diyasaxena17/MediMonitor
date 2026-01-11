@@ -10,6 +10,7 @@ export default function CaregiverPage() {
   const { status } = useSession();
   const { logs, resetLogs } = useMedication();
   const [mounted, setMounted] = useState(false);
+  const [currentDate, setCurrentDate] = useState(new Date());
 
   useEffect(() => {
     // This is intentional to prevent hydration issues with localStorage
@@ -66,6 +67,37 @@ export default function CaregiverPage() {
   const takenLogs = logs.filter((log: MedicationLog) => log.taken);
   const missedLogs = logs.filter((log: MedicationLog) => !log.taken);
 
+  // Calendar helper functions
+  const getDaysInMonth = (date: Date) => {
+    return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+  };
+
+  const getFirstDayOfMonth = (date: Date) => {
+    return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+  };
+
+  const getLogsForDay = (day: number) => {
+    const dateStr = new Date(currentDate.getFullYear(), currentDate.getMonth(), day)
+      .toISOString()
+      .split('T')[0];
+    const dayLogs = logs.filter((log: MedicationLog) => {
+      const logDateStr = new Date(log.timestamp).toISOString().split('T')[0];
+      return logDateStr === dateStr;
+    });
+    return {
+      taken: dayLogs.filter((l) => l.taken).length,
+      missed: dayLogs.filter((l) => !l.taken).length,
+    };
+  };
+
+  const prevMonth = () => {
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1));
+  };
+
+  const nextMonth = () => {
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1));
+  };
+
   return (
     <main className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-950 to-black p-8">
       <div className="max-w-6xl mx-auto">
@@ -121,6 +153,92 @@ export default function CaregiverPage() {
             </div>
             <div className="text-6xl font-bold text-slate-200">
               {missedLogs.length}
+            </div>
+          </div>
+        </div>
+
+        {/* Calendar View */}
+        <div className="bg-white/5 border border-white/10 backdrop-blur rounded-2xl p-8 mb-8">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-3xl font-bold text-white">
+              {currentDate.toLocaleString('en-US', { month: 'long', year: 'numeric' })}
+            </h2>
+            <div className="flex gap-4">
+              <button
+                onClick={prevMonth}
+                className="py-2 px-4 bg-white/10 hover:bg-white/15 text-white font-semibold rounded-lg border border-white/15"
+                aria-label="Previous month"
+              >
+                ← Prev
+              </button>
+              <button
+                onClick={nextMonth}
+                className="py-2 px-4 bg-white/10 hover:bg-white/15 text-white font-semibold rounded-lg border border-white/15"
+                aria-label="Next month"
+              >
+                Next →
+              </button>
+            </div>
+          </div>
+
+          {/* Calendar Grid */}
+          <div className="grid grid-cols-7 gap-2">
+            {/* Day headers */}
+            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+              <div key={day} className="text-center text-slate-300 font-semibold py-2">
+                {day}
+              </div>
+            ))}
+
+            {/* Empty cells for days before month starts */}
+            {Array.from({ length: getFirstDayOfMonth(currentDate) }).map((_, i) => (
+              <div key={`empty-${i}`} className="aspect-square" />
+            ))}
+
+            {/* Day cells */}
+            {Array.from({ length: getDaysInMonth(currentDate) }).map((_, i) => {
+              const day = i + 1;
+              const { taken, missed } = getLogsForDay(day);
+              const hasLogs = taken > 0 || missed > 0;
+
+              return (
+                <div
+                  key={day}
+                  className={`aspect-square p-2 rounded-lg border-2 flex flex-col items-center justify-center text-center transition ${
+                    hasLogs
+                      ? 'bg-white/10 border-sky-400/50'
+                      : 'bg-white/5 border-white/10'
+                  }`}
+                >
+                  <div className="text-white font-bold text-sm">{day}</div>
+                  {hasLogs && (
+                    <div className="text-xs mt-1 space-y-1">
+                      {taken > 0 && (
+                        <div className="text-emerald-300 font-semibold">
+                          ✓ {taken}
+                        </div>
+                      )}
+                      {missed > 0 && (
+                        <div className="text-red-300 font-semibold">
+                          ✗ {missed}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Legend */}
+          <div className="flex justify-center gap-8 mt-6 text-sm">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-emerald-500 rounded" />
+              <span className="text-emerald-300">Medications Taken</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-red-500 rounded" />
+              <span className="text-red-300">Medications Missed</span>
             </div>
           </div>
         </div>

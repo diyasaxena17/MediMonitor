@@ -47,8 +47,13 @@ export function MedicationProvider({ children }: { children: ReactNode }) {
     setLogs((prev) => [newLog, ...prev]);
   };
 
+  const resetLogs = () => {
+    setLogs([]);
+    localStorage.removeItem('medicationLogs');
+  };
+
   return (
-    <MedicationContext.Provider value={{ logs, addLog }}>
+    <MedicationContext.Provider value={{ logs, addLog, resetLogs }}>
       {children}
     </MedicationContext.Provider>
   );
