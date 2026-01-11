@@ -16,6 +16,8 @@ A production-ready healthcare web application that bridges the gap between patie
 
 MediMonitor is a full-stack medication adherence platform designed with accessibility at its core. Built for healthcare environments, it enables patients to log medications with one tap while providing caregivers real-time visibility into adherence patterns—all through a WCAG-compliant, high-contrast interface with text-to-speech support.
 
+Contributor: Disha Saxena
+
 **Key Achievement**: Developed as a hackathon project (DeltaHacks 12) and deployed to production with Google OAuth, analytics, and protected routes in under 48 hours.
 
 ## 🤖 AI-Powered Development
