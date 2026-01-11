@@ -6,6 +6,7 @@ import { MedicationLog } from './types';
 interface MedicationContextType {
   logs: MedicationLog[];
   addLog: (taken: boolean) => void;
+  resetLogs: () => void;
 }
 
 const MedicationContext = createContext<MedicationContextType | undefined>(undefined);

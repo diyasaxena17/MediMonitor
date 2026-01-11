@@ -45,11 +45,11 @@ export default function TrackPage() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center bg-white p-8">
+    <main className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 via-slate-950 to-black p-8">
       <div className="max-w-4xl w-full text-center space-y-12">
         {/* Main message - large, high contrast */}
         <h1 
-          className="text-6xl md:text-8xl font-bold text-black leading-tight"
+          className="text-6xl md:text-8xl font-bold text-white leading-tight"
           role="alert"
           aria-live="polite"
         >
@@ -60,7 +60,7 @@ export default function TrackPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
           <button
             onClick={handleTookMedication}
-            className="w-full py-12 px-16 bg-black text-white text-4xl md:text-5xl font-bold rounded-3xl hover:bg-gray-800 active:bg-gray-900 transition-all transform hover:scale-105 active:scale-95 shadow-2xl"
+            className="w-full py-12 px-16 bg-sky-500 hover:bg-sky-400 text-black text-4xl md:text-5xl font-bold rounded-3xl active:bg-sky-600 transition-all transform hover:scale-105 active:scale-95 shadow-lg shadow-sky-500/20"
             aria-label="I took my medication - Click to log"
           >
             I took my medication
@@ -68,7 +68,7 @@ export default function TrackPage() {
 
           <button
             onClick={handleMissedMedication}
-            className="w-full py-12 px-16 bg-red-600 text-white text-4xl md:text-5xl font-bold rounded-3xl hover:bg-red-700 active:bg-red-800 transition-all transform hover:scale-105 active:scale-95 shadow-2xl"
+            className="w-full py-12 px-16 bg-white/10 hover:bg-white/15 text-white text-4xl md:text-5xl font-bold rounded-3xl border border-white/15 transition-all transform hover:scale-105 active:scale-95 shadow-2xl"
             aria-label="I did not take my medication - Click to log as missed"
           >
             I did not take it
@@ -79,7 +79,7 @@ export default function TrackPage() {
         <div className="pt-8">
           <Link
             href="/caregiver"
-            className="text-2xl text-gray-600 hover:text-black underline"
+            className="text-2xl text-sky-300 hover:text-sky-200 underline"
             aria-label="View caregiver dashboard"
           >
             Caregiver Dashboard →
