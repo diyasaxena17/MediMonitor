@@ -6,7 +6,7 @@
 
 A production-ready healthcare web application that bridges the gap between patients and caregivers through real-time medication tracking, voice reminders, and secure authentication.
 
-**[Live Demo ↗](https://medimonitor-app.vercel.app)** | **[View Source](https://github.com/diyasaxena17/MediMonitor)**
+**[Live Demo ↗](https://diyasaxena17-medimonitor-app.vercel.app/)** | **[View Source](https://github.com/diyasaxena17/MediMonitor)** | **[Devpost Article](https://devpost.com/software/medimonitor?ref_content=my-projects-tab&ref_feature=my_projects)**
 
 ---
 
@@ -281,12 +281,6 @@ Authorized redirect URIs:
 
 MIT License - see [LICENSE](LICENSE) for details.
 
-## 👤 Developer
-
-**Disha Saxena**
-- Built for DeltaHacks 12 (January 2026)
-- Demonstrates: Full-stack development, AI-assisted coding, prompt engineering, accessibility design
-- [GitHub](https://github.com/diyasaxena17)
 
 **Skills Showcased**:
 - ✅ Modern AI tool proficiency (GitHub Copilot, GPT-4, Claude)
@@ -302,7 +296,7 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 **Built with ❤️ for accessible healthcare**
 
-[Live Demo](https://medimonitor-app.vercel.app) • [Report Bug](https://github.com/diyasaxena17/MediMonitor/issues) • [Request Feature](https://github.com/diyasaxena17/MediMonitor/issues)
+[Live Demo](https://diyasaxena17-medimonitor-app.vercel.app/) • [Report Bug](https://github.com/diyasaxena17/MediMonitor/issues) • [Request Feature](https://github.com/diyasaxena17/MediMonitor/issues)
 
 </div>
 
