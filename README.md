@@ -18,7 +18,7 @@ MediMonitor is a full-stack medication adherence platform designed with accessib
 
 Contributor: Disha Saxena
 
-**Key Achievement**: Developed as a hackathon project (DeltaHacks 12) and deployed to production with Google OAuth, analytics, and protected routes in under 48 hours.
+**Key Achievement**: Developed as a hackathon project (DeltaHacks 12) and deployed to production with Auth0 authentication, analytics, and protected routes in under 48 hours.
 
 ## 🤖 AI-Powered Development
 
@@ -31,7 +31,7 @@ This project demonstrates **proficiency in AI-assisted development** and modern 
 
 ### Demonstrated Skills
 ✅ **Effective Prompt Engineering**: Crafted precise prompts to generate production-ready TypeScript/React code  
-✅ **AI-Augmented Architecture**: Leveraged LLMs for NextAuth setup, route protection, and state management  
+✅ **AI-Augmented Architecture**: Leveraged LLMs for Auth0 setup, route protection, and state management  
 ✅ **Rapid Prototyping**: Used AI to accelerate development from concept to deployed product in <48 hours  
 ✅ **Code Quality**: AI-assisted refactoring for accessibility compliance and TypeScript best practices  
 ✅ **Documentation**: GPT-powered README generation and inline code comments  
@@ -53,12 +53,13 @@ This project demonstrates **proficiency in AI-assisted development** and modern 
 
 ### Caregiver Dashboard
 - **Real-Time Monitoring**: Protected dashboard shows adherence patterns with timestamps
+- **Calendar View**: Month-by-month calendar showing taken/missed days at a glance
 - **Visual Analytics**: Summary statistics and chronological event log with status indicators
-- **Secure Access**: OAuth 2.0 authentication via Google for HIPAA-ready access control
+- **Secure Access**: Auth0 authentication for protected access control
 
 ### Technical Highlights
-- **Modern Stack**: Next.js 14 App Router, TypeScript, Tailwind CSS v4
-- **Authentication**: NextAuth.js with Google provider and session management
+- **Modern Stack**: Next.js 16 App Router, TypeScript, Tailwind CSS v4
+- **Authentication**: Auth0 with proxy-based middleware and session management
 - **Analytics**: Vercel Analytics for usage insights and performance monitoring
 - **Fully Responsive**: Mobile-first design that scales to desktop
 - **Production-Ready**: Deployed on Vercel with edge functions and CDN
@@ -67,8 +68,8 @@ This project demonstrates **proficiency in AI-assisted development** and modern 
 
 ### Prerequisites
 
-- Node.js 18+ and npm
-- Google Cloud Console project (for OAuth credentials)
+- Node.js 20+ and npm
+- Auth0 account (free tier works)
 
 ### Setup
 
@@ -81,7 +82,7 @@ cd MediMonitor
 npm install
 
 # Create environment variables file
-cp .env.example .env.local  # (create .env.local and add variables below)
+cp .env.local.example .env.local  # then fill in your Auth0 values
 
 # Run development server
 npm run dev
@@ -91,27 +92,26 @@ Visit [http://localhost:3000](http://localhost:3000) to see the app.
 
 ### Environment Variables
 
-Create a `.env.local` file with:
+Create a `.env.local` file from the example:
 
 ```env
-GOOGLE_CLIENT_ID=your_google_client_id
-GOOGLE_CLIENT_SECRET=your_google_client_secret
-NEXTAUTH_SECRET=your_generated_secret
-NEXTAUTH_URL=http://localhost:3000
+AUTH0_DOMAIN=your-tenant.auth0.com
+AUTH0_CLIENT_ID=your-auth0-client-id
+AUTH0_CLIENT_SECRET=your-auth0-client-secret
+AUTH0_SECRET=run-openssl-rand-hex-32-to-generate
 ```
 
-**Google OAuth Setup**:
-1. Create a project in [Google Cloud Console](https://console.cloud.google.com)
-2. Enable OAuth 2.0 and create credentials
-3. Add authorized redirect URIs:
-   - `http://localhost:3000/api/auth/callback/google` (local)
-   - `https://medimonitor-app.vercel.app/api/auth/callback/google` (production)
+**Auth0 Setup**:
+1. Create a **Regular Web Application** in the [Auth0 Dashboard](https://manage.auth0.com)
+2. Copy the Domain, Client ID, and Client Secret into `.env.local`
+3. Add to **Allowed Callback URLs**: `http://localhost:3000/auth/callback`
+4. Add to **Allowed Logout URLs**: `http://localhost:3000`
 
 ## 📱 Pages
 
 ### Landing Page (`/`)
 - Professional sign-in hero with product branding
-- Google authentication (sign in / sign up)
+- Auth0 authentication (sign in / sign up)
 - Quick access to tracker and caregiver dashboard
 - Feature highlights and value proposition
 
@@ -123,28 +123,29 @@ NEXTAUTH_URL=http://localhost:3000
 - Link to caregiver dashboard
 
 ### Caregiver Dashboard (`/caregiver`)
-- Protected route (requires Google sign-in)
+- Protected route (requires sign-in)
 - Summary statistics (taken vs. missed medications)
-- Chronological log of all medication events
-- Visual status indicators with timestamps
-- Sign-out control
+- Monthly calendar view of adherence
+- Chronological log of all medication events with timestamps
+- Reset and sign-out controls
 
 ## 🛠️ Technology Stack
 
 | Category | Technologies |
 |----------|-------------|
-| **Frontend** | Next.js 14 (App Router), React 19, TypeScript |
-| **Styling** | Tailwind CSS v4, CSS-in-JS |
-| **Authentication** | NextAuth.js, Google OAuth 2.0 |
+| **Frontend** | Next.js 16 (App Router), React 19, TypeScript |
+| **Styling** | Tailwind CSS v4 |
+| **Authentication** | Auth0 (`@auth0/nextjs-auth0` v4) |
 | **State Management** | React Context API, localStorage |
 | **Analytics** | Vercel Analytics |
 | **Deployment** | Vercel (Edge Functions, CDN) |
 | **Accessibility** | ARIA labels, semantic HTML, keyboard navigation, TTS |
 
 ### Architecture Decisions
-- **App Router**: Leverages Next.js 14's latest routing for improved performance and SEO
+- **App Router**: Leverages Next.js 16's latest routing for improved performance and SEO
+- **proxy.ts**: Next.js 16's network boundary convention for Auth0 middleware
 - **Client-Side State**: localStorage enables offline-first medication logging
-- **OAuth Flow**: Secure, passwordless authentication reduces friction while maintaining security
+- **Auth0 Flow**: Secure, passwordless authentication reduces friction while maintaining security
 - **Edge Deployment**: Vercel's edge network ensures <100ms response times globally
 
 ## 📦 Project Structure
@@ -152,8 +153,6 @@ NEXTAUTH_URL=http://localhost:3000
 ```
 MediMonitor/
 ├── app/
-│   ├── api/
-│   │   └── auth/[...nextauth]/  # NextAuth API routes
 │   ├── caregiver/
 │   │   └── page.tsx             # Protected dashboard (auth required)
 │   ├── track/
@@ -161,17 +160,20 @@ MediMonitor/
 │   ├── login/
 │   │   └── page.tsx             # Standalone login page
 │   ├── MedicationContext.tsx    # Global state management
-│   ├── Providers.tsx            # Session + medication providers
+│   ├── Providers.tsx            # Medication context provider
 │   ├── types.ts                 # TypeScript interfaces
 │   ├── layout.tsx               # Root layout + analytics
 │   ├── page.tsx                 # Landing/sign-in page
 │   └── globals.css              # Tailwind + custom styles
+├── lib/
+│   └── auth0.ts                 # Auth0Client instance
 ├── public/                      # Static assets
+├── proxy.ts                     # Next.js 16 auth middleware
+├── .env.local.example           # Environment variable template
 ├── package.json                 # Dependencies + scripts
 ├── tsconfig.json                # TypeScript config
 ├── next.config.ts               # Next.js configuration
-├── DEPLOYMENT.md                # Deployment guide
-└── README.md
+└── DEPLOYMENT.md                # Deployment guide
 ```
 
 ## 🔧 Available Scripts
@@ -189,28 +191,10 @@ This app is optimized for deployment on Vercel:
 
 1. Push your code to GitHub
 2. Import your repository on [Vercel](https://vercel.com)
-3. Deploy with one click - no configuration needed!
+3. Add your Auth0 environment variables in project settings
+4. Deploy — done!
 
-Alternatively, you can deploy using the Vercel CLI:
-
-```bash
-npm install -g vercel
-vercel
-```
-
-### Environment Variables (Auth)
-
-To enable Google login, set these in your Vercel project settings or `.env.local`:
-
-- `GOOGLE_CLIENT_ID`: Google OAuth Client ID
-- `GOOGLE_CLIENT_SECRET`: Google OAuth Client Secret
-- `NEXTAUTH_SECRET`: A long random string for JWT/session encryption
-- `NEXTAUTH_URL`: Your app URL (e.g., https://medimonitor-app.vercel.app)
-
-Create OAuth credentials at Google Cloud Console → Credentials → OAuth client ID.
-Authorized redirect URIs:
-- `https://medimonitor-app.vercel.app/api/auth/callback/google` (Production)
-- `http://localhost:3000/api/auth/callback/google` (Local)
+See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions including Auth0 dashboard configuration for production URLs.
 
 ## 🎯 Use Cases & Impact
 
@@ -230,12 +214,12 @@ Authorized redirect URIs:
 
 **AI-Powered Development Process**:
 - Utilized GitHub Copilot for 80%+ of boilerplate code generation
-- GPT-4 for complex architectural decisions (NextAuth integration, route protection)
+- GPT-4/Claude for complex architectural decisions (Auth0 integration, route protection)
 - Prompt engineering for accessibility compliance and WCAG standards
 - AI-assisted debugging reduced troubleshooting time by 70%
 
 **Technical Challenges Solved**:
-- Implemented protected routes with NextAuth session management
+- Implemented protected routes with Auth0 session management via `proxy.ts`
 - Built accessible UI meeting WCAG 2.1 AA standards (contrast ratios, keyboard nav)
 - Designed real-time state synchronization between patient and caregiver views
 - Integrated browser TTS API for cross-platform voice feedback
@@ -255,7 +239,7 @@ Authorized redirect URIs:
 
 ## ♿ Accessibility Features
 
-- High contrast black/white color scheme
+- High contrast dark color scheme
 - Large text (6xl-8xl for headings, 4xl-5xl for buttons)
 - ARIA labels and roles for screen readers
 - Browser text-to-speech integration
@@ -264,11 +248,11 @@ Authorized redirect URIs:
 
 ## 🔐 Security & Privacy
 
-- **OAuth 2.0**: Industry-standard authentication via Google
-- **Session Management**: Secure JWT tokens with NextAuth
+- **Auth0**: Industry-standard authentication and identity management
+- **Session Management**: Secure encrypted session cookies via Auth0 SDK
 - **No PHI Storage**: Medication logs stored locally (browser localStorage)
 - **HTTPS Only**: All production traffic encrypted in transit
-- **Protected Routes**: Server-side session validation for caregiver dashboard
+- **Protected Routes**: Auth0 middleware guards the caregiver dashboard
 - **No Third-Party Tracking**: Analytics limited to Vercel's privacy-first solution
 
 **Note**: This is a demonstration application. For production healthcare use, implement:
@@ -286,7 +270,7 @@ MIT License - see [LICENSE](LICENSE) for details.
 - ✅ Modern AI tool proficiency (GitHub Copilot, GPT-4, Claude)
 - ✅ Effective prompt engineering for production code
 - ✅ Full-stack TypeScript/Next.js development
-- ✅ OAuth 2.0 implementation and security best practices
+- ✅ Auth0 implementation and security best practices
 - ✅ WCAG accessibility compliance
 - ✅ Rapid prototyping and deployment (0→production in 48hrs)
 
