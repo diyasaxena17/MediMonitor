@@ -4,10 +4,10 @@ import { useMedication } from '../MedicationContext';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { MedicationLog } from '../types';
-import { useSession, signIn, signOut } from 'next-auth/react';
+import { useUser } from '@auth0/nextjs-auth0/client';
 
 export default function CaregiverPage() {
-  const { status } = useSession();
+  const { user } = useUser();
   const { logs, resetLogs } = useMedication();
   const [mounted, setMounted] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -41,7 +41,7 @@ export default function CaregiverPage() {
     );
   }
 
-  if (status === 'unauthenticated') {
+  if (!user) {
     return (
       <main className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-950 to-black p-8">
         <div className="max-w-6xl mx-auto">
@@ -50,13 +50,13 @@ export default function CaregiverPage() {
             <p className="text-lg text-slate-200">Please sign in to view the dashboard.</p>
             <div className="flex justify-center gap-4">
               <Link href="/" className="text-xl underline text-sky-300 hover:text-sky-200">Back to Home</Link>
-              <button
-                onClick={() => signIn('google')}
+              <a
+                href="/auth/login"
                 className="py-3 px-6 bg-sky-500 hover:bg-sky-400 text-black text-xl font-bold rounded-2xl shadow-lg shadow-sky-500/20"
-                aria-label="Sign in with Google"
+                aria-label="Sign in"
               >
-                Sign in with Google
-              </button>
+                Sign in
+              </a>
             </div>
           </div>
         </div>
@@ -121,13 +121,13 @@ export default function CaregiverPage() {
             >
               Reset Logs
             </button>
-            <button
-              onClick={() => signOut()}
-              className="py-2 px-4 bg-white/10 hover:bg-white/15 text-white text-sm font-bold rounded-xl border border-white/15"
+            <a
+              href="/auth/logout"
+              className="py-2 px-4 bg-white/10 hover:bg-white/15 text-white text-sm font-bold rounded-xl border border-white/15 inline-block"
               aria-label="Sign out"
             >
               Sign out
-            </button>
+            </a>
           </div>
           <h1 className="text-5xl font-bold text-white mb-2">
             Caregiver Dashboard

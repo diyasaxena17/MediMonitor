@@ -33,16 +33,16 @@ vercel --prod
 
 ## Environment Variables
 
-For basic usage, no env vars are required. To enable Google Login (NextAuth), set:
+Copy `.env.local.example` to `.env.local` and fill in your Auth0 values. Create a **Regular Web Application** in the [Auth0 Dashboard](https://manage.auth0.com) and set:
 
-- `GOOGLE_CLIENT_ID`
-- `GOOGLE_CLIENT_SECRET`
-- `NEXTAUTH_SECRET`
-- `NEXTAUTH_URL`
+- `AUTH0_DOMAIN` — your Auth0 tenant domain (e.g. `dev-xxxx.us.auth0.com`)
+- `AUTH0_CLIENT_ID` — from Auth0 application settings
+- `AUTH0_CLIENT_SECRET` — from Auth0 application settings
+- `AUTH0_SECRET` — random 32-byte hex string (`openssl rand -hex 32`)
 
-Google OAuth redirect URIs:
-- Production: `https://medimonitor-app.vercel.app/api/auth/callback/google`
-- Local: `http://localhost:3000/api/auth/callback/google`
+In the Auth0 Dashboard, configure your application's:
+- **Allowed Callback URLs**: `https://medimonitor-app.vercel.app/auth/callback`, `http://localhost:3000/auth/callback`
+- **Allowed Logout URLs**: `https://medimonitor-app.vercel.app`, `http://localhost:3000`
 
 ## Build Settings
 
