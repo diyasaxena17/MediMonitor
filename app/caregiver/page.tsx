@@ -6,6 +6,15 @@ import Link from 'next/link';
 import { MedicationLog } from '../types';
 import { useUser } from '@auth0/nextjs-auth0/client';
 
+const DEMO_LOGS: MedicationLog[] = [
+  { id: '1', timestamp: new Date(Date.now() - 1000 * 60 * 30), taken: true },
+  { id: '2', timestamp: new Date(Date.now() - 1000 * 60 * 60 * 25), taken: true },
+  { id: '3', timestamp: new Date(Date.now() - 1000 * 60 * 60 * 49), taken: false },
+  { id: '4', timestamp: new Date(Date.now() - 1000 * 60 * 60 * 73), taken: true },
+  { id: '5', timestamp: new Date(Date.now() - 1000 * 60 * 60 * 97), taken: true },
+  { id: '6', timestamp: new Date(Date.now() - 1000 * 60 * 60 * 121), taken: false },
+];
+
 export default function CaregiverPage() {
   const { user } = useUser();
   const { logs, resetLogs } = useMedication();
@@ -13,8 +22,6 @@ export default function CaregiverPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
 
   useEffect(() => {
-    // This is intentional to prevent hydration issues with localStorage
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 
@@ -41,31 +48,10 @@ export default function CaregiverPage() {
     );
   }
 
-  if (!user) {
-    return (
-      <main className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-950 to-black p-8">
-        <div className="max-w-6xl mx-auto">
-          <div className="bg-white/5 border border-white/10 rounded-2xl backdrop-blur p-8 text-center space-y-6">
-            <h1 className="text-4xl font-bold text-white">Caregiver Dashboard</h1>
-            <p className="text-lg text-slate-200">Please sign in to view the dashboard.</p>
-            <div className="flex justify-center gap-4">
-              <Link href="/" className="text-xl underline text-sky-300 hover:text-sky-200">Back to Home</Link>
-              <a
-                href="/auth/login"
-                className="py-3 px-6 bg-sky-500 hover:bg-sky-400 text-black text-xl font-bold rounded-2xl shadow-lg shadow-sky-500/20"
-                aria-label="Sign in"
-              >
-                Sign in
-              </a>
-            </div>
-          </div>
-        </div>
-      </main>
-    );
-  }
-
-  const takenLogs = logs.filter((log: MedicationLog) => log.taken);
-  const missedLogs = logs.filter((log: MedicationLog) => !log.taken);
+  const isPreview = !user;
+  const activeLogs = isPreview ? DEMO_LOGS : logs;
+  const takenLogs = activeLogs.filter((log: MedicationLog) => log.taken);
+  const missedLogs = activeLogs.filter((log: MedicationLog) => !log.taken);
 
   // Calendar helper functions
   const getDaysInMonth = (date: Date) => {
@@ -80,7 +66,7 @@ export default function CaregiverPage() {
     const dateStr = new Date(currentDate.getFullYear(), currentDate.getMonth(), day)
       .toISOString()
       .split('T')[0];
-    const dayLogs = logs.filter((log: MedicationLog) => {
+    const dayLogs = activeLogs.filter((log: MedicationLog) => {
       const logDateStr = new Date(log.timestamp).toISOString().split('T')[0];
       return logDateStr === dateStr;
     });
@@ -101,6 +87,23 @@ export default function CaregiverPage() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-950 to-black p-8">
       <div className="max-w-6xl mx-auto">
+
+        {/* Preview banner */}
+        {isPreview && (
+          <div className="mb-6 p-4 rounded-2xl bg-sky-500/10 border border-sky-400/30 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+              <p className="text-sky-200 font-semibold">You are viewing a preview with sample data.</p>
+              <p className="text-sky-300/70 text-sm">Sign in to see real medication logs.</p>
+            </div>
+            <a
+              href="/auth/login"
+              className="shrink-0 py-2 px-5 bg-sky-500 hover:bg-sky-400 text-black font-bold rounded-xl transition"
+            >
+              Sign in
+            </a>
+          </div>
+        )}
+
         {/* Header */}
         <div className="mb-8">
           <Link
@@ -109,26 +112,28 @@ export default function CaregiverPage() {
           >
             ← Back to Home
           </Link>
-          <div className="float-right space-x-4">
-            <button
-              onClick={() => {
-                if (confirm('Are you sure you want to reset all medication logs? This cannot be undone.')) {
-                  resetLogs();
-                }
-              }}
-              className="py-2 px-4 bg-white/5 hover:bg-white/10 text-red-300 hover:text-red-200 text-sm font-bold rounded-xl border border-red-300/30 inline-block"
-              aria-label="Reset medication logs"
-            >
-              Reset Logs
-            </button>
-            <a
-              href="/auth/logout"
-              className="py-2 px-4 bg-white/10 hover:bg-white/15 text-white text-sm font-bold rounded-xl border border-white/15 inline-block"
-              aria-label="Sign out"
-            >
-              Sign out
-            </a>
-          </div>
+          {!isPreview && (
+            <div className="float-right space-x-4">
+              <button
+                onClick={() => {
+                  if (confirm('Are you sure you want to reset all medication logs? This cannot be undone.')) {
+                    resetLogs();
+                  }
+                }}
+                className="py-2 px-4 bg-white/5 hover:bg-white/10 text-red-300 hover:text-red-200 text-sm font-bold rounded-xl border border-red-300/30 inline-block"
+                aria-label="Reset medication logs"
+              >
+                Reset Logs
+              </button>
+              <a
+                href="/auth/logout"
+                className="py-2 px-4 bg-white/10 hover:bg-white/15 text-white text-sm font-bold rounded-xl border border-white/15 inline-block"
+                aria-label="Sign out"
+              >
+                Sign out
+              </a>
+            </div>
+          )}
           <h1 className="text-5xl font-bold text-white mb-2">
             Caregiver Dashboard
           </h1>
@@ -249,45 +254,40 @@ export default function CaregiverPage() {
             Recent Activity
           </h2>
 
-          {logs.length === 0 ? (
-            <div className="text-center py-12 text-slate-400 text-xl">
-              No medication logs yet. Go to the home page to log your first medication.
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {logs.map((log: MedicationLog) => (
-                <div
-                  key={log.id}
-                  className={`flex justify-between items-center p-6 rounded-xl border-2 ${
-                    log.taken
-                      ? 'bg-emerald-500/10 border-emerald-500/30'
-                      : 'bg-white/5 border-white/10'
-                  }`}
-                >
-                  <div className="flex items-center space-x-4">
-                    <div
-                      className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl font-bold ${
-                        log.taken ? 'bg-emerald-500 text-black' : 'bg-white/10 text-slate-300'
-                      }`}
-                    >
-                      {log.taken ? '✓' : '✗'}
-                    </div>
-                    <div>
-                      <div className={`text-xl font-semibold ${
-                        log.taken ? 'text-emerald-300' : 'text-slate-300'
-                      }`}>
-                        {log.taken ? 'Medication Taken' : 'Medication Missed'}
-                      </div>
-                    </div>
+          <div className="space-y-4">
+            {activeLogs.map((log: MedicationLog) => (
+              <div
+                key={log.id}
+                className={`flex justify-between items-center p-6 rounded-xl border-2 ${
+                  log.taken
+                    ? 'bg-emerald-500/10 border-emerald-500/30'
+                    : 'bg-white/5 border-white/10'
+                }`}
+              >
+                <div className="flex items-center space-x-4">
+                  <div
+                    className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl font-bold ${
+                      log.taken ? 'bg-emerald-500 text-black' : 'bg-white/10 text-slate-300'
+                    }`}
+                  >
+                    {log.taken ? '✓' : '✗'}
                   </div>
-                  <div className="text-slate-400 text-lg">
-                    {formatTime(log.timestamp)}
+                  <div>
+                    <div className={`text-xl font-semibold ${
+                      log.taken ? 'text-emerald-300' : 'text-slate-300'
+                    }`}>
+                      {log.taken ? 'Medication Taken' : 'Medication Missed'}
+                    </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
+                <div className="text-slate-400 text-lg">
+                  {formatTime(log.timestamp)}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
+
       </div>
     </main>
   );
