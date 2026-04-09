@@ -1,11 +1,14 @@
 'use client';
 
 import { useMedication } from '../MedicationContext';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
+
+type LogResult = 'taken' | 'missed' | null;
 
 export default function TrackPage() {
   const { addLog } = useMedication();
+  const [lastLog, setLastLog] = useState<LogResult>(null);
 
   // Text-to-speech on page load
   useEffect(() => {
@@ -19,28 +22,30 @@ export default function TrackPage() {
       }
     };
 
-    // Speak after a short delay to ensure page is loaded
     const timer = setTimeout(speak, 500);
     return () => clearTimeout(timer);
   }, []);
 
+  // Clear confirmation after 4 seconds
+  useEffect(() => {
+    if (!lastLog) return;
+    const timer = setTimeout(() => setLastLog(null), 4000);
+    return () => clearTimeout(timer);
+  }, [lastLog]);
+
   const handleTookMedication = () => {
     addLog(true);
-    
-    // Provide feedback via speech
+    setLastLog('taken');
     if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance('Medication logged successfully');
-      window.speechSynthesis.speak(utterance);
+      window.speechSynthesis.speak(new SpeechSynthesisUtterance('Medication logged successfully'));
     }
   };
 
   const handleMissedMedication = () => {
     addLog(false);
-
-    // Provide feedback via speech
+    setLastLog('missed');
     if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance('Medication marked as missed');
-      window.speechSynthesis.speak(utterance);
+      window.speechSynthesis.speak(new SpeechSynthesisUtterance('Medication marked as missed'));
     }
   };
 
@@ -48,13 +53,35 @@ export default function TrackPage() {
     <main className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 via-slate-950 to-black p-8">
       <div className="max-w-4xl w-full text-center space-y-12">
         {/* Main message - large, high contrast */}
-        <h1 
+        <h1
           className="text-6xl md:text-8xl font-bold text-white leading-tight"
           role="alert"
           aria-live="polite"
         >
           Time to take your medication
         </h1>
+
+        {/* Post-log confirmation */}
+        <div className="h-16 flex items-center justify-center">
+          {lastLog === 'taken' && (
+            <div
+              className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-emerald-500/20 border-2 border-emerald-500/50 text-emerald-300 text-2xl font-bold"
+              role="status"
+              aria-live="polite"
+            >
+              <span className="text-3xl">✓</span> Logged — great job!
+            </div>
+          )}
+          {lastLog === 'missed' && (
+            <div
+              className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-white/5 border-2 border-white/15 text-slate-300 text-2xl font-bold"
+              role="status"
+              aria-live="polite"
+            >
+              <span className="text-3xl">✗</span> Marked as missed
+            </div>
+          )}
+        </div>
 
         {/* Action buttons - high contrast, accessible */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
