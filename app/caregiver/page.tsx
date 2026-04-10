@@ -52,6 +52,9 @@ export default function CaregiverPage() {
   const activeLogs = isPreview ? DEMO_LOGS : logs;
   const takenLogs = activeLogs.filter((log: MedicationLog) => log.taken);
   const missedLogs = activeLogs.filter((log: MedicationLog) => !log.taken);
+  const adherenceRate = activeLogs.length > 0
+    ? Math.round((takenLogs.length / activeLogs.length) * 100)
+    : null;
 
   // Calendar helper functions
   const getDaysInMonth = (date: Date) => {
@@ -143,7 +146,7 @@ export default function CaregiverPage() {
         </div>
 
         {/* Summary Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-emerald-500/20 p-8 rounded-2xl border-2 border-emerald-500/50">
             <div className="text-emerald-200 text-lg font-semibold mb-2">
               Medications Taken
@@ -158,6 +161,29 @@ export default function CaregiverPage() {
             </div>
             <div className="text-6xl font-bold text-slate-200">
               {missedLogs.length}
+            </div>
+          </div>
+          <div className={`p-8 rounded-2xl border-2 ${
+            adherenceRate === null ? 'bg-white/5 border-white/10' :
+            adherenceRate >= 80 ? 'bg-sky-500/20 border-sky-500/50' :
+            adherenceRate >= 50 ? 'bg-yellow-500/20 border-yellow-500/50' :
+            'bg-red-500/20 border-red-500/50'
+          }`}>
+            <div className={`text-lg font-semibold mb-2 ${
+              adherenceRate === null ? 'text-slate-300' :
+              adherenceRate >= 80 ? 'text-sky-200' :
+              adherenceRate >= 50 ? 'text-yellow-200' :
+              'text-red-200'
+            }`}>
+              Adherence Rate
+            </div>
+            <div className={`text-6xl font-bold ${
+              adherenceRate === null ? 'text-slate-400' :
+              adherenceRate >= 80 ? 'text-sky-300' :
+              adherenceRate >= 50 ? 'text-yellow-300' :
+              'text-red-300'
+            }`}>
+              {adherenceRate === null ? '—' : `${adherenceRate}%`}
             </div>
           </div>
         </div>
