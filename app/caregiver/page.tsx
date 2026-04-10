@@ -56,6 +56,23 @@ export default function CaregiverPage() {
     ? Math.round((takenLogs.length / activeLogs.length) * 100)
     : null;
 
+  // Streak: consecutive days (going back from today) where at least one dose was taken and none missed
+  const streak = (() => {
+    let count = 0;
+    const today = new Date();
+    for (let i = 0; i < 365; i++) {
+      const day = new Date(today.getFullYear(), today.getMonth(), today.getDate() - i);
+      const dateStr = day.toISOString().split('T')[0];
+      const dayLogs = activeLogs.filter(
+        (l: MedicationLog) => new Date(l.timestamp).toISOString().split('T')[0] === dateStr
+      );
+      if (dayLogs.length === 0) break;
+      if (dayLogs.some((l: MedicationLog) => !l.taken)) break;
+      count++;
+    }
+    return count;
+  })();
+
   // Calendar helper functions
   const getDaysInMonth = (date: Date) => {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
@@ -146,7 +163,7 @@ export default function CaregiverPage() {
         </div>
 
         {/* Summary Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div className="bg-emerald-500/20 p-8 rounded-2xl border-2 border-emerald-500/50">
             <div className="text-emerald-200 text-lg font-semibold mb-2">
               Medications Taken
@@ -185,6 +202,19 @@ export default function CaregiverPage() {
             }`}>
               {adherenceRate === null ? '—' : `${adherenceRate}%`}
             </div>
+          </div>
+          <div className={`p-8 rounded-2xl border-2 ${streak >= 3 ? 'bg-orange-500/20 border-orange-500/50' : 'bg-white/5 border-white/10'}`}>
+            <div className={`text-lg font-semibold mb-2 ${streak >= 3 ? 'text-orange-200' : 'text-slate-300'}`}>
+              Day Streak
+            </div>
+            <div className={`text-6xl font-bold ${streak >= 3 ? 'text-orange-300' : 'text-slate-200'}`}>
+              {streak === 0 ? '—' : streak}
+            </div>
+            {streak > 0 && (
+              <div className="text-sm mt-2 text-slate-400">
+                {streak === 1 ? 'day in a row' : 'days in a row'}
+              </div>
+            )}
           </div>
         </div>
 
