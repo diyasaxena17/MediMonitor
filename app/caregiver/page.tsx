@@ -126,12 +126,14 @@ export default function CaregiverPage() {
 
         {/* Header */}
         <div className="mb-8">
-          <Link
-            href="/"
-            className="text-xl text-sky-300 hover:text-sky-200 mb-4 inline-block"
-          >
-            ← Back to Home
-          </Link>
+          <div className="flex gap-6 mb-4">
+            <Link href="/" className="text-xl text-sky-300 hover:text-sky-200">
+              ← Back to Home
+            </Link>
+            <Link href="/track" className="text-xl text-sky-300 hover:text-sky-200">
+              Tracker →
+            </Link>
+          </div>
           {!isPreview && (
             <div className="float-right space-x-4">
               <button
