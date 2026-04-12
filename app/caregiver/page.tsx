@@ -312,38 +312,66 @@ export default function CaregiverPage() {
             Recent Activity
           </h2>
 
-          <div className="space-y-4">
-            {activeLogs.map((log: MedicationLog) => (
-              <div
-                key={log.id}
-                className={`flex justify-between items-center p-6 rounded-xl border-2 ${
-                  log.taken
-                    ? 'bg-emerald-500/10 border-emerald-500/30'
-                    : 'bg-white/5 border-white/10'
-                }`}
-              >
-                <div className="flex items-center space-x-4">
-                  <div
-                    className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl font-bold ${
-                      log.taken ? 'bg-emerald-500 text-black' : 'bg-white/10 text-slate-300'
-                    }`}
-                  >
-                    {log.taken ? '✓' : '✗'}
-                  </div>
-                  <div>
-                    <div className={`text-xl font-semibold ${
-                      log.taken ? 'text-emerald-300' : 'text-slate-300'
-                    }`}>
-                      {log.taken ? 'Medication Taken' : 'Medication Missed'}
+          {(() => {
+            const todayStr = new Date().toISOString().split('T')[0];
+            const yesterdayStr = new Date(Date.now() - 864e5).toISOString().split('T')[0];
+
+            const groups: { label: string; logs: MedicationLog[] }[] = [
+              { label: 'Today', logs: activeLogs.filter((l: MedicationLog) => new Date(l.timestamp).toISOString().split('T')[0] === todayStr) },
+              { label: 'Yesterday', logs: activeLogs.filter((l: MedicationLog) => new Date(l.timestamp).toISOString().split('T')[0] === yesterdayStr) },
+              { label: 'Earlier', logs: activeLogs.filter((l: MedicationLog) => new Date(l.timestamp).toISOString().split('T')[0] < yesterdayStr) },
+            ].filter(g => g.logs.length > 0);
+
+            if (groups.length === 0) {
+              return (
+                <div className="text-center py-12 text-slate-400 text-xl">
+                  No medication logs yet. Go to the tracker to log your first medication.
+                </div>
+              );
+            }
+
+            return (
+              <div className="space-y-8">
+                {groups.map(group => (
+                  <div key={group.label}>
+                    <h3 className="text-sm uppercase tracking-widest text-slate-500 font-semibold mb-3">
+                      {group.label}
+                    </h3>
+                    <div className="space-y-4">
+                      {group.logs.map((log: MedicationLog) => (
+                        <div
+                          key={log.id}
+                          className={`flex justify-between items-center p-6 rounded-xl border-2 ${
+                            log.taken
+                              ? 'bg-emerald-500/10 border-emerald-500/30'
+                              : 'bg-white/5 border-white/10'
+                          }`}
+                        >
+                          <div className="flex items-center space-x-4">
+                            <div
+                              className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl font-bold ${
+                                log.taken ? 'bg-emerald-500 text-black' : 'bg-white/10 text-slate-300'
+                              }`}
+                            >
+                              {log.taken ? '✓' : '✗'}
+                            </div>
+                            <div className={`text-xl font-semibold ${
+                              log.taken ? 'text-emerald-300' : 'text-slate-300'
+                            }`}>
+                              {log.taken ? 'Medication Taken' : 'Medication Missed'}
+                            </div>
+                          </div>
+                          <div className="text-slate-400 text-lg">
+                            {formatTime(log.timestamp)}
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                </div>
-                <div className="text-slate-400 text-lg">
-                  {formatTime(log.timestamp)}
-                </div>
+                ))}
               </div>
-            ))}
-          </div>
+            );
+          })()}
         </div>
 
       </div>
