@@ -3,12 +3,38 @@
 import { useMedication } from '../MedicationContext';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { MedicationLog } from '../types';
 
 type LogResult = 'taken' | 'missed' | null;
 
+function useElapsed(timestamp: Date | null) {
+  const [elapsed, setElapsed] = useState('');
+
+  useEffect(() => {
+    if (!timestamp) return;
+
+    const update = () => {
+      const seconds = Math.floor((Date.now() - new Date(timestamp).getTime()) / 1000);
+      if (seconds < 60) setElapsed(`${seconds}s ago`);
+      else if (seconds < 3600) setElapsed(`${Math.floor(seconds / 60)}m ago`);
+      else if (seconds < 86400) setElapsed(`${Math.floor(seconds / 3600)}h ago`);
+      else setElapsed(`${Math.floor(seconds / 86400)}d ago`);
+    };
+
+    update();
+    const interval = setInterval(update, 30000);
+    return () => clearInterval(interval);
+  }, [timestamp]);
+
+  return elapsed;
+}
+
 export default function TrackPage() {
-  const { addLog } = useMedication();
+  const { addLog, logs } = useMedication();
   const [lastLog, setLastLog] = useState<LogResult>(null);
+
+  const mostRecentLog: MedicationLog | null = logs.length > 0 ? logs[0] : null;
+  const elapsed = useElapsed(mostRecentLog ? mostRecentLog.timestamp : null);
 
   // Text-to-speech on page load
   useEffect(() => {
@@ -60,6 +86,24 @@ export default function TrackPage() {
         >
           Time to take your medication
         </h1>
+
+        {/* Last dose elapsed */}
+        <div className="text-xl text-slate-400">
+          {mostRecentLog ? (
+            <>
+              Last dose:{' '}
+              <span className={`font-semibold ${mostRecentLog.taken ? 'text-emerald-300' : 'text-slate-300'}`}>
+                {elapsed}
+              </span>
+              {' '}—{' '}
+              <span className={mostRecentLog.taken ? 'text-emerald-400' : 'text-slate-400'}>
+                {mostRecentLog.taken ? 'taken' : 'missed'}
+              </span>
+            </>
+          ) : (
+            <span className="text-slate-500">No doses logged yet</span>
+          )}
+        </div>
 
         {/* Post-log confirmation */}
         <div className="h-16 flex items-center justify-center">
