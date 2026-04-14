@@ -164,6 +164,48 @@ export default function CaregiverPage() {
           </p>
         </div>
 
+        {/* 7-day strip */}
+        <div className="bg-white/5 border border-white/10 rounded-2xl px-8 py-6 mb-8">
+          <p className="text-sm uppercase tracking-widest text-slate-500 font-semibold mb-4">Past 7 Days</p>
+          <div className="flex justify-between gap-2">
+            {Array.from({ length: 7 }).map((_, i) => {
+              const day = new Date();
+              day.setDate(day.getDate() - (6 - i));
+              const dateStr = day.toISOString().split('T')[0];
+              const dayLogs = activeLogs.filter(
+                (l: MedicationLog) => new Date(l.timestamp).toISOString().split('T')[0] === dateStr
+              );
+              const hasTaken = dayLogs.some((l: MedicationLog) => l.taken);
+              const hasMissed = dayLogs.some((l: MedicationLog) => !l.taken);
+              const isToday = i === 6;
+
+              let dotColor = 'bg-white/10 border-white/10';
+              let label = 'No log';
+              if (hasTaken && !hasMissed) { dotColor = 'bg-emerald-500 border-emerald-400'; label = 'Taken'; }
+              else if (hasMissed && !hasTaken) { dotColor = 'bg-red-500 border-red-400'; label = 'Missed'; }
+              else if (hasTaken && hasMissed) { dotColor = 'bg-yellow-500 border-yellow-400'; label = 'Mixed'; }
+
+              return (
+                <div key={dateStr} className="flex flex-col items-center gap-2 flex-1">
+                  <div
+                    className={`w-full aspect-square rounded-full border-2 ${dotColor} ${isToday ? 'ring-2 ring-white/30 ring-offset-2 ring-offset-transparent' : ''}`}
+                    title={`${day.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}: ${label}`}
+                  />
+                  <span className={`text-xs font-medium ${isToday ? 'text-white' : 'text-slate-500'}`}>
+                    {day.toLocaleDateString('en-US', { weekday: 'short' })}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+          <div className="flex gap-6 mt-4 text-xs text-slate-500">
+            <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block" />Taken</span>
+            <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-red-500 inline-block" />Missed</span>
+            <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-yellow-500 inline-block" />Mixed</span>
+            <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-white/10 inline-block" />No log</span>
+          </div>
+        </div>
+
         {/* Summary Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div className="bg-emerald-500/20 p-8 rounded-2xl border-2 border-emerald-500/50">
