@@ -20,6 +20,7 @@ export default function CaregiverPage() {
   const { logs, resetLogs } = useMedication();
   const [mounted, setMounted] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [showResetModal, setShowResetModal] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -137,11 +138,7 @@ export default function CaregiverPage() {
           {!isPreview && (
             <div className="float-right space-x-4">
               <button
-                onClick={() => {
-                  if (confirm('Are you sure you want to reset all medication logs? This cannot be undone.')) {
-                    resetLogs();
-                  }
-                }}
+                onClick={() => setShowResetModal(true)}
                 className="py-2 px-4 bg-white/5 hover:bg-white/10 text-red-300 hover:text-red-200 text-sm font-bold rounded-xl border border-red-300/30 inline-block"
                 aria-label="Reset medication logs"
               >
@@ -417,6 +414,32 @@ export default function CaregiverPage() {
         </div>
 
       </div>
+
+      {/* Reset confirmation modal */}
+      {showResetModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-6">
+          <div className="bg-slate-900 border border-white/10 rounded-3xl p-8 max-w-md w-full space-y-6 shadow-2xl">
+            <div>
+              <h2 className="text-2xl font-bold text-white mb-2">Reset all logs?</h2>
+              <p className="text-slate-400">This will permanently delete all medication logs. This cannot be undone.</p>
+            </div>
+            <div className="flex gap-4">
+              <button
+                onClick={() => { resetLogs(); setShowResetModal(false); }}
+                className="flex-1 py-3 px-6 bg-red-500 hover:bg-red-400 text-white font-bold rounded-2xl transition"
+              >
+                Yes, reset
+              </button>
+              <button
+                onClick={() => setShowResetModal(false)}
+                className="flex-1 py-3 px-6 bg-white/10 hover:bg-white/15 text-white font-bold rounded-2xl border border-white/15 transition"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
