@@ -74,6 +74,38 @@ export default function CaregiverPage() {
     return count;
   })();
 
+  // Longest streak: scan all unique log days in order
+  const longestStreak = (() => {
+    const uniqueDays = [...new Set(
+      activeLogs.map((l: MedicationLog) => new Date(l.timestamp).toISOString().split('T')[0])
+    )].sort();
+
+    let best = 0;
+    let current = 0;
+    let prevDate: Date | null = null;
+
+    for (const dateStr of uniqueDays) {
+      const dayLogs = activeLogs.filter(
+        (l: MedicationLog) => new Date(l.timestamp).toISOString().split('T')[0] === dateStr
+      );
+      const allTaken = dayLogs.every((l: MedicationLog) => l.taken);
+      const day = new Date(dateStr);
+      const isConsecutive = prevDate
+        ? (day.getTime() - prevDate.getTime()) === 864e5
+        : true;
+
+      if (allTaken && isConsecutive) {
+        current++;
+        best = Math.max(best, current);
+      } else {
+        current = allTaken ? 1 : 0;
+        if (allTaken) best = Math.max(best, current);
+      }
+      prevDate = day;
+    }
+    return best;
+  })();
+
   // Calendar helper functions
   const getDaysInMonth = (date: Date) => {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
@@ -204,7 +236,7 @@ export default function CaregiverPage() {
         </div>
 
         {/* Summary Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
           <div className="bg-emerald-500/20 p-8 rounded-2xl border-2 border-emerald-500/50">
             <div className="text-emerald-200 text-lg font-semibold mb-2">
               Medications Taken
@@ -254,6 +286,19 @@ export default function CaregiverPage() {
             {streak > 0 && (
               <div className="text-sm mt-2 text-slate-400">
                 {streak === 1 ? 'day in a row' : 'days in a row'}
+              </div>
+            )}
+          </div>
+          <div className="p-8 rounded-2xl border-2 bg-white/5 border-white/10">
+            <div className="text-slate-300 text-lg font-semibold mb-2">
+              Longest Streak
+            </div>
+            <div className="text-6xl font-bold text-slate-200">
+              {longestStreak === 0 ? '—' : longestStreak}
+            </div>
+            {longestStreak > 0 && (
+              <div className="text-sm mt-2 text-slate-400">
+                {longestStreak === 1 ? 'day' : 'days'} best
               </div>
             )}
           </div>
