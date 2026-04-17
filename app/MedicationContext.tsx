@@ -5,7 +5,7 @@ import { MedicationLog } from './types';
 
 interface MedicationContextType {
   logs: MedicationLog[];
-  addLog: (taken: boolean) => void;
+  addLog: (taken: boolean, note?: string) => void;
   resetLogs: () => void;
 }
 
@@ -38,11 +38,12 @@ export function MedicationProvider({ children }: { children: ReactNode }) {
     }
   }, [logs]);
 
-  const addLog = (taken: boolean) => {
+  const addLog = (taken: boolean, note?: string) => {
     const newLog: MedicationLog = {
       id: crypto.randomUUID(),
       timestamp: new Date(),
       taken,
+      ...(note?.trim() ? { note: note.trim() } : {}),
     };
     setLogs((prev) => [newLog, ...prev]);
   };

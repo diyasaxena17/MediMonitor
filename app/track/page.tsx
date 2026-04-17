@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { MedicationLog } from '../types';
 
 type LogResult = 'taken' | 'missed' | null;
+type NoteState = { logId: string; taken: boolean } | null;
 
 function useElapsed(timestamp: Date | null) {
   const [elapsed, setElapsed] = useState('');
@@ -32,6 +33,8 @@ function useElapsed(timestamp: Date | null) {
 export default function TrackPage() {
   const { addLog, logs } = useMedication();
   const [lastLog, setLastLog] = useState<LogResult>(null);
+  const [pendingNote, setPendingNote] = useState<NoteState>(null);
+  const [noteText, setNoteText] = useState('');
 
   const mostRecentLog: MedicationLog | null = logs.length > 0 ? logs[0] : null;
   const elapsed = useElapsed(mostRecentLog ? mostRecentLog.timestamp : null);
@@ -60,18 +63,25 @@ export default function TrackPage() {
   }, [lastLog]);
 
   const handleTookMedication = () => {
-    addLog(true);
-    setLastLog('taken');
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.speak(new SpeechSynthesisUtterance('Medication logged successfully'));
-    }
+    setPendingNote({ logId: crypto.randomUUID(), taken: true });
+    setNoteText('');
   };
 
   const handleMissedMedication = () => {
-    addLog(false);
-    setLastLog('missed');
+    setPendingNote({ logId: crypto.randomUUID(), taken: false });
+    setNoteText('');
+  };
+
+  const submitNote = (note: string) => {
+    if (!pendingNote) return;
+    addLog(pendingNote.taken, note);
+    setLastLog(pendingNote.taken ? 'taken' : 'missed');
+    setPendingNote(null);
+    setNoteText('');
     if ('speechSynthesis' in window) {
-      window.speechSynthesis.speak(new SpeechSynthesisUtterance('Medication marked as missed'));
+      window.speechSynthesis.speak(new SpeechSynthesisUtterance(
+        pendingNote.taken ? 'Medication logged successfully' : 'Medication marked as missed'
+      ));
     }
   };
 
@@ -127,24 +137,57 @@ export default function TrackPage() {
           )}
         </div>
 
-        {/* Action buttons - high contrast, accessible */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
-          <button
-            onClick={handleTookMedication}
-            className="w-full py-12 px-16 bg-sky-500 hover:bg-sky-400 text-black text-4xl md:text-5xl font-bold rounded-3xl active:bg-sky-600 transition-all transform hover:scale-105 active:scale-95 shadow-lg shadow-sky-500/20"
-            aria-label="I took my medication - Click to log"
-          >
-            I took my medication
-          </button>
+        {/* Note input or action buttons */}
+        {pendingNote ? (
+          <div className="max-w-3xl mx-auto w-full space-y-4">
+            <p className="text-2xl text-slate-300">
+              {pendingNote.taken ? 'Medication taken.' : 'Marked as missed.'}{' '}
+              Add a note? <span className="text-slate-500">(optional)</span>
+            </p>
+            <textarea
+              value={noteText}
+              onChange={e => setNoteText(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitNote(noteText); } }}
+              placeholder="e.g. felt nauseous, took with food…"
+              maxLength={200}
+              rows={2}
+              className="w-full bg-white/5 border border-white/15 rounded-2xl px-6 py-4 text-white text-xl placeholder-slate-500 focus:outline-none focus:border-sky-400 resize-none"
+              autoFocus
+            />
+            <div className="flex gap-4">
+              <button
+                onClick={() => submitNote(noteText)}
+                className="flex-1 py-4 bg-sky-500 hover:bg-sky-400 text-black text-xl font-bold rounded-2xl transition"
+              >
+                Save &amp; Log
+              </button>
+              <button
+                onClick={() => submitNote('')}
+                className="flex-1 py-4 bg-white/10 hover:bg-white/15 text-white text-xl font-bold rounded-2xl border border-white/15 transition"
+              >
+                Skip
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+            <button
+              onClick={handleTookMedication}
+              className="w-full py-12 px-16 bg-sky-500 hover:bg-sky-400 text-black text-4xl md:text-5xl font-bold rounded-3xl active:bg-sky-600 transition-all transform hover:scale-105 active:scale-95 shadow-lg shadow-sky-500/20"
+              aria-label="I took my medication - Click to log"
+            >
+              I took my medication
+            </button>
 
-          <button
-            onClick={handleMissedMedication}
-            className="w-full py-12 px-16 bg-white/10 hover:bg-white/15 text-white text-4xl md:text-5xl font-bold rounded-3xl border border-white/15 transition-all transform hover:scale-105 active:scale-95 shadow-2xl"
-            aria-label="I did not take my medication - Click to log as missed"
-          >
-            I did not take it
-          </button>
-        </div>
+            <button
+              onClick={handleMissedMedication}
+              className="w-full py-12 px-16 bg-white/10 hover:bg-white/15 text-white text-4xl md:text-5xl font-bold rounded-3xl border border-white/15 transition-all transform hover:scale-105 active:scale-95 shadow-2xl"
+              aria-label="I did not take my medication - Click to log as missed"
+            >
+              I did not take it
+            </button>
+          </div>
+        )}
 
         {/* Link to caregiver page */}
         <div className="pt-8">

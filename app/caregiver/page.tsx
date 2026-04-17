@@ -7,7 +7,7 @@ import { MedicationLog } from '../types';
 import { useUser } from '@auth0/nextjs-auth0/client';
 
 const DEMO_LOGS: MedicationLog[] = [
-  { id: '1', timestamp: new Date(Date.now() - 1000 * 60 * 30), taken: true },
+  { id: '1', timestamp: new Date(Date.now() - 1000 * 60 * 30), taken: true, note: 'took with breakfast' },
   { id: '2', timestamp: new Date(Date.now() - 1000 * 60 * 60 * 25), taken: true },
   { id: '3', timestamp: new Date(Date.now() - 1000 * 60 * 60 * 49), taken: false },
   { id: '4', timestamp: new Date(Date.now() - 1000 * 60 * 60 * 73), taken: true },
@@ -392,9 +392,39 @@ export default function CaregiverPage() {
 
         {/* Logs Display */}
         <div className="bg-white/5 border border-white/10 backdrop-blur rounded-2xl p-8">
-          <h2 className="text-3xl font-bold text-white mb-6">
-            Recent Activity
-          </h2>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-3xl font-bold text-white">Recent Activity</h2>
+            {activeLogs.length > 0 && (
+              <button
+                onClick={() => {
+                  const rows = [
+                    ['Date', 'Time', 'Status', 'Note'],
+                    ...activeLogs.map((l: MedicationLog) => {
+                      const d = new Date(l.timestamp);
+                      return [
+                        d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
+                        d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
+                        l.taken ? 'Taken' : 'Missed',
+                        l.note ?? '',
+                      ];
+                    }),
+                  ];
+                  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+                  const blob = new Blob([csv], { type: 'text/csv' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `medication-logs-${new Date().toISOString().split('T')[0]}.csv`;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                }}
+                className="py-2 px-4 bg-white/5 hover:bg-white/10 text-sky-300 hover:text-sky-200 text-sm font-bold rounded-xl border border-sky-300/30 transition"
+                aria-label="Export logs as CSV"
+              >
+                Export CSV
+              </button>
+            )}
+          </div>
 
           {(() => {
             const todayStr = new Date().toISOString().split('T')[0];
@@ -439,10 +469,15 @@ export default function CaregiverPage() {
                             >
                               {log.taken ? '✓' : '✗'}
                             </div>
-                            <div className={`text-xl font-semibold ${
-                              log.taken ? 'text-emerald-300' : 'text-slate-300'
-                            }`}>
-                              {log.taken ? 'Medication Taken' : 'Medication Missed'}
+                            <div>
+                              <div className={`text-xl font-semibold ${
+                                log.taken ? 'text-emerald-300' : 'text-slate-300'
+                              }`}>
+                                {log.taken ? 'Medication Taken' : 'Medication Missed'}
+                              </div>
+                              {log.note && (
+                                <div className="text-sm text-slate-400 mt-1">{log.note}</div>
+                              )}
                             </div>
                           </div>
                           <div className="text-slate-400 text-lg">
