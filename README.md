@@ -4,7 +4,7 @@
 
 ### Accessibility-First Medication Adherence Platform
 
-A production-ready healthcare web application that bridges the gap between patients and caregivers through real-time medication tracking, voice reminders, and secure authentication.
+A healthcare web application that bridges the gap between patients and caregivers through real-time medication tracking, voice reminders, and secure authentication.
 
 **[Live Demo ↗](https://diyasaxena17-medimonitor-app.vercel.app/)** | **[View Source](https://github.com/diyasaxena17/MediMonitor)** | **[Devpost Article](https://devpost.com/software/medimonitor?ref_content=my-projects-tab&ref_feature=my_projects)**
 
@@ -19,9 +19,6 @@ MediMonitor is a full-stack medication adherence platform designed with accessib
 
 **Key Achievement**: Developed as a hackathon project (DeltaHacks 12) and deployed to production with Auth0 authentication, analytics, and protected routes in under 48 hours.
 
-## 🤖 AI-Powered Development
-
-This project demonstrates **proficiency in AI-assisted development** and modern prompt engineering techniques:
 
 ### AI Technologies Utilized
 - **GitHub Copilot**: Code generation, auto-completion, and refactoring suggestions
@@ -35,12 +32,6 @@ This project demonstrates **proficiency in AI-assisted development** and modern 
 ✅ **Code Quality**: AI-assisted refactoring for accessibility compliance and TypeScript best practices  
 ✅ **Documentation**: GPT-powered README generation and inline code comments  
 
-### Efficiency Impact
-- **5x faster development**: AI code generation reduced boilerplate by ~80%
-- **Real-time debugging**: Instant error resolution through AI-assisted troubleshooting
-- **Best practices**: Automated suggestions for security, accessibility, and performance
-
-**This project showcases the ability to leverage AI as a productivity multiplier while maintaining code quality and architectural integrity—a critical skill for modern full-stack development.**
 
 ## ✨ Key Features
 
