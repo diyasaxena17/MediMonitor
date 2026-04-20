@@ -30,7 +30,6 @@ MediMonitor is a full-stack medication adherence platform designed with accessib
 ✅ **AI-Augmented Architecture**: Leveraged LLMs for Auth0 setup, route protection, and state management  
 ✅ **Rapid Prototyping**: Used AI to accelerate development from concept to deployed product in <48 hours  
 ✅ **Code Quality**: AI-assisted refactoring for accessibility compliance and TypeScript best practices  
-✅ **Documentation**: GPT-powered README generation and inline code comments  
 
 
 ## ✨ Key Features
@@ -119,7 +118,7 @@ AUTH0_SECRET=run-openssl-rand-hex-32-to-generate
 - Chronological log of all medication events with timestamps
 - Reset and sign-out controls
 
-## 🛠️ Technology Stack
+## 🛠️ Tech Stack
 
 | Category | Technologies |
 |----------|-------------|
@@ -131,12 +130,6 @@ AUTH0_SECRET=run-openssl-rand-hex-32-to-generate
 | **Deployment** | Vercel (Edge Functions, CDN) |
 | **Accessibility** | ARIA labels, semantic HTML, keyboard navigation, TTS |
 
-### Architecture Decisions
-- **App Router**: Leverages Next.js 16's latest routing for improved performance and SEO
-- **proxy.ts**: Next.js 16's network boundary convention for Auth0 middleware
-- **Client-Side State**: localStorage enables offline-first medication logging
-- **Auth0 Flow**: Secure, passwordless authentication reduces friction while maintaining security
-- **Edge Deployment**: Vercel's edge network ensures <100ms response times globally
 
 ## 📦 Project Structure
 
@@ -175,16 +168,6 @@ npm run start    # Start production server
 npm run lint     # Run ESLint
 ```
 
-## 🌐 Deployment
-
-This app is optimized for deployment on Vercel:
-
-1. Push your code to GitHub
-2. Import your repository on [Vercel](https://vercel.com)
-3. Add your Auth0 environment variables in project settings
-4. Deploy — done!
-
-See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions including Auth0 dashboard configuration for production URLs.
 
 ## 🎯 Use Cases & Impact
 
@@ -201,12 +184,6 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions including Auth0 das
 - Clinical researchers tracking adherence in studies
 
 ## 💡 Development Highlights
-
-**AI-Powered Development Process**:
-- Utilized GitHub Copilot for 80%+ of boilerplate code generation
-- GPT-4/Claude for complex architectural decisions (Auth0 integration, route protection)
-- Prompt engineering for accessibility compliance and WCAG standards
-- AI-assisted debugging reduced troubleshooting time by 70%
 
 **Technical Challenges Solved**:
 - Implemented protected routes with Auth0 session management via `proxy.ts`
