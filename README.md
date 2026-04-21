@@ -208,17 +208,14 @@ npm run lint     # Run ESLint
 
 - High contrast dark color scheme
 - Large text (6xl-8xl for headings, 4xl-5xl for buttons)
-- ARIA labels and roles for screen readers
 - Browser text-to-speech integration
 - Keyboard navigation support
-- Responsive touch targets (minimum 44x44px)
 
 ## 🔐 Security & Privacy
 
 - **Auth0**: Industry-standard authentication and identity management
 - **Session Management**: Secure encrypted session cookies via Auth0 SDK
 - **No PHI Storage**: Medication logs stored locally (browser localStorage)
-- **HTTPS Only**: All production traffic encrypted in transit
 - **Protected Routes**: Auth0 middleware guards the caregiver dashboard
 - **No Third-Party Tracking**: Analytics limited to Vercel's privacy-first solution
 
@@ -227,10 +224,6 @@ npm run lint     # Run ESLint
 - Audit logging for all access and modifications
 - Two-factor authentication
 - Data retention policies
-
-## 📝 License
-
-MIT License - see [LICENSE](LICENSE) for details.
 
 
 **Skills Showcased**:
