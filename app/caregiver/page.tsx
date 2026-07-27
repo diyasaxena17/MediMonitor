@@ -23,6 +23,8 @@ export default function CaregiverPage() {
   const [showResetModal, setShowResetModal] = useState(false);
 
   useEffect(() => {
+    // The dashboard waits for browser-only medication storage before rendering.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 
@@ -398,12 +400,22 @@ export default function CaregiverPage() {
               <button
                 onClick={() => {
                   const rows = [
-                    ['Date', 'Time', 'Status', 'Note'],
+                    ['Date', 'Time', 'Medication', 'Dosage', 'Scheduled For', 'Status', 'Note'],
                     ...activeLogs.map((l: MedicationLog) => {
                       const d = new Date(l.timestamp);
                       return [
                         d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
                         d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
+                        l.medicationName ?? 'Unspecified medication',
+                        l.dosage ?? '',
+                        l.scheduledFor
+                          ? new Date(l.scheduledFor).toLocaleString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              hour: 'numeric',
+                              minute: '2-digit',
+                            })
+                          : '',
                         l.taken ? 'Taken' : 'Missed',
                         l.note ?? '',
                       ];
@@ -428,7 +440,9 @@ export default function CaregiverPage() {
 
           {(() => {
             const todayStr = new Date().toISOString().split('T')[0];
-            const yesterdayStr = new Date(Date.now() - 864e5).toISOString().split('T')[0];
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayStr = yesterday.toISOString().split('T')[0];
 
             const groups: { label: string; logs: MedicationLog[] }[] = [
               { label: 'Today', logs: activeLogs.filter((l: MedicationLog) => new Date(l.timestamp).toISOString().split('T')[0] === todayStr) },
@@ -473,8 +487,20 @@ export default function CaregiverPage() {
                               <div className={`text-xl font-semibold ${
                                 log.taken ? 'text-emerald-300' : 'text-slate-300'
                               }`}>
-                                {log.taken ? 'Medication Taken' : 'Medication Missed'}
+                                {log.medicationName ?? 'Medication'}{' '}
+                                {log.taken ? 'Taken' : 'Missed'}
                               </div>
+                              {log.dosage && (
+                                <div className="text-sm text-slate-300 mt-1">
+                                  {log.dosage}
+                                  {log.scheduledFor && (
+                                    <> · Scheduled {new Date(log.scheduledFor).toLocaleTimeString([], {
+                                      hour: 'numeric',
+                                      minute: '2-digit',
+                                    })}</>
+                                  )}
+                                </div>
+                              )}
                               {log.note && (
                                 <div className="text-sm text-slate-400 mt-1">{log.note}</div>
                               )}

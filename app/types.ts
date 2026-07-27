@@ -13,4 +13,8 @@ export interface MedicationLog {
   timestamp: Date;
   taken: boolean;
   note?: string;
+  medicationId?: string;
+  medicationName?: string;
+  dosage?: string;
+  scheduledFor?: Date;
 }

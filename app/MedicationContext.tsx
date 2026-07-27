@@ -4,13 +4,14 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { MedicationLog, MedicationSchedule } from './types';
 
 type NewMedicationSchedule = Omit<MedicationSchedule, 'id' | 'createdAt'>;
+type NewMedicationLog = Omit<MedicationLog, 'id' | 'timestamp'>;
 
 interface MedicationContextType {
   schedules: MedicationSchedule[];
   addSchedule: (schedule: NewMedicationSchedule) => void;
   removeSchedule: (id: string) => void;
   logs: MedicationLog[];
-  addLog: (taken: boolean, note?: string) => void;
+  addLog: (log: NewMedicationLog) => void;
   resetLogs: () => void;
 }
 
@@ -45,15 +46,19 @@ export function MedicationProvider({ children }: { children: ReactNode }) {
     try {
       const stored = localStorage.getItem('medicationLogs');
       if (stored) {
-        const parsedLogs = JSON.parse(stored) as Array<{
-          id: string;
-          timestamp: string;
-          taken: boolean;
-        }>;
+        const parsedLogs = JSON.parse(stored) as Array<
+          Omit<MedicationLog, 'timestamp' | 'scheduledFor'> & {
+            timestamp: string;
+            scheduledFor?: string;
+          }
+        >;
         setLogs(
-          parsedLogs.map((log) => ({
+          parsedLogs.map(({ timestamp, scheduledFor, ...log }) => ({
             ...log,
-            timestamp: new Date(log.timestamp),
+            timestamp: new Date(timestamp),
+            ...(scheduledFor
+              ? { scheduledFor: new Date(scheduledFor) }
+              : {}),
           })),
         );
       }
@@ -104,12 +109,12 @@ export function MedicationProvider({ children }: { children: ReactNode }) {
     setSchedules((current) => current.filter((schedule) => schedule.id !== id));
   };
 
-  const addLog = (taken: boolean, note?: string) => {
+  const addLog = (log: NewMedicationLog) => {
     const newLog: MedicationLog = {
+      ...log,
       id: crypto.randomUUID(),
       timestamp: new Date(),
-      taken,
-      ...(note?.trim() ? { note: note.trim() } : {}),
+      ...(log.note?.trim() ? { note: log.note.trim() } : { note: undefined }),
     };
     setLogs((prev) => [newLog, ...prev]);
   };

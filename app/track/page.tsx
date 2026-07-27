@@ -4,9 +4,14 @@ import { useMedication } from '../MedicationContext';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { MedicationLog } from '../types';
+import { getNextScheduledDose } from '../medication-utils';
 
 type LogResult = 'taken' | 'missed' | null;
-type NoteState = { logId: string; taken: boolean } | null;
+type NoteState = {
+  taken: boolean;
+  medicationId: string;
+  scheduledFor: Date;
+} | null;
 
 function useElapsed(timestamp: Date | null) {
   const [elapsed, setElapsed] = useState('');
@@ -35,10 +40,21 @@ export default function TrackPage() {
   const [lastLog, setLastLog] = useState<LogResult>(null);
   const [pendingNote, setPendingNote] = useState<NoteState>(null);
   const [noteText, setNoteText] = useState('');
+  const [currentTime, setCurrentTime] = useState<Date | null>(null);
 
-  const nextMedication = schedules[0];
+  const nextDose = currentTime
+    ? getNextScheduledDose(schedules, logs, currentTime)
+    : null;
+  const nextMedication = nextDose?.medication;
   const mostRecentLog: MedicationLog | null = logs.length > 0 ? logs[0] : null;
   const elapsed = useElapsed(mostRecentLog ? mostRecentLog.timestamp : null);
+
+  useEffect(() => {
+    const updateCurrentTime = () => setCurrentTime(new Date());
+    updateCurrentTime();
+    const interval = setInterval(updateCurrentTime, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Text-to-speech on page load
   useEffect(() => {
@@ -64,18 +80,40 @@ export default function TrackPage() {
   }, [lastLog]);
 
   const handleTookMedication = () => {
-    setPendingNote({ logId: crypto.randomUUID(), taken: true });
+    if (!nextDose) return;
+    setPendingNote({
+      taken: true,
+      medicationId: nextDose.medication.id,
+      scheduledFor: nextDose.scheduledFor,
+    });
     setNoteText('');
   };
 
   const handleMissedMedication = () => {
-    setPendingNote({ logId: crypto.randomUUID(), taken: false });
+    if (!nextDose) return;
+    setPendingNote({
+      taken: false,
+      medicationId: nextDose.medication.id,
+      scheduledFor: nextDose.scheduledFor,
+    });
     setNoteText('');
   };
 
   const submitNote = (note: string) => {
     if (!pendingNote) return;
-    addLog(pendingNote.taken, note);
+    const medication = schedules.find(
+      (schedule) => schedule.id === pendingNote.medicationId,
+    );
+    if (!medication) return;
+
+    addLog({
+      taken: pendingNote.taken,
+      note,
+      medicationId: medication.id,
+      medicationName: medication.name,
+      dosage: medication.dosage,
+      scheduledFor: pendingNote.scheduledFor,
+    });
     setLastLog(pendingNote.taken ? 'taken' : 'missed');
     setPendingNote(null);
     setNoteText('');
@@ -92,7 +130,7 @@ export default function TrackPage() {
         {nextMedication ? (
           <div className="space-y-4" role="status" aria-live="polite">
             <p className="text-xl uppercase tracking-[0.25em] text-sky-300">
-              Time to take
+              {nextDose.isOverdue ? 'Dose overdue' : 'Next scheduled dose'}
             </p>
             <h1 className="text-6xl md:text-8xl font-bold text-white leading-tight">
               {nextMedication.name}
@@ -109,7 +147,7 @@ export default function TrackPage() {
               <p className="text-lg text-slate-300">{nextMedication.notes}</p>
             )}
           </div>
-        ) : (
+        ) : schedules.length === 0 ? (
           <div className="space-y-6">
             <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight">
               No medications scheduled
@@ -124,6 +162,20 @@ export default function TrackPage() {
               Add a medication
             </Link>
           </div>
+        ) : currentTime ? (
+          <div className="space-y-4" role="status" aria-live="polite">
+            <p className="text-xl uppercase tracking-[0.25em] text-emerald-300">
+              Today&apos;s schedule complete
+            </p>
+            <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight">
+              All medications logged
+            </h1>
+            <p className="text-xl text-slate-300">
+              Your next daily schedule begins tomorrow.
+            </p>
+          </div>
+        ) : (
+          <div className="text-xl text-slate-400">Loading your schedule…</div>
         )}
 
         {/* Last dose elapsed */}
@@ -170,7 +222,7 @@ export default function TrackPage() {
         {nextMedication && (pendingNote ? (
           <div className="max-w-3xl mx-auto w-full space-y-4">
             <p className="text-2xl text-slate-300">
-              {pendingNote.taken ? 'Medication taken.' : 'Marked as missed.'}{' '}
+              {pendingNote.taken ? `${nextMedication?.name} taken.` : `${nextMedication?.name} marked as missed.`}{' '}
               Add a note? <span className="text-slate-500">(optional)</span>
             </p>
             <textarea
