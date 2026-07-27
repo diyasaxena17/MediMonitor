@@ -31,11 +31,12 @@ function useElapsed(timestamp: Date | null) {
 }
 
 export default function TrackPage() {
-  const { addLog, logs } = useMedication();
+  const { schedules, addLog, logs } = useMedication();
   const [lastLog, setLastLog] = useState<LogResult>(null);
   const [pendingNote, setPendingNote] = useState<NoteState>(null);
   const [noteText, setNoteText] = useState('');
 
+  const nextMedication = schedules[0];
   const mostRecentLog: MedicationLog | null = logs.length > 0 ? logs[0] : null;
   const elapsed = useElapsed(mostRecentLog ? mostRecentLog.timestamp : null);
 
@@ -88,14 +89,42 @@ export default function TrackPage() {
   return (
     <main className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 via-slate-950 to-black p-8">
       <div className="max-w-4xl w-full text-center space-y-12">
-        {/* Main message - large, high contrast */}
-        <h1
-          className="text-6xl md:text-8xl font-bold text-white leading-tight"
-          role="alert"
-          aria-live="polite"
-        >
-          Time to take your medication
-        </h1>
+        {nextMedication ? (
+          <div className="space-y-4" role="status" aria-live="polite">
+            <p className="text-xl uppercase tracking-[0.25em] text-sky-300">
+              Time to take
+            </p>
+            <h1 className="text-6xl md:text-8xl font-bold text-white leading-tight">
+              {nextMedication.name}
+            </h1>
+            <p className="text-3xl text-slate-200">{nextMedication.dosage}</p>
+            <p className="text-xl text-slate-300">
+              Scheduled daily at{' '}
+              {new Date(`1970-01-01T${nextMedication.reminderTime}`).toLocaleTimeString(
+                [],
+                { hour: 'numeric', minute: '2-digit' },
+              )}
+            </p>
+            {nextMedication.notes && (
+              <p className="text-lg text-slate-300">{nextMedication.notes}</p>
+            )}
+          </div>
+        ) : (
+          <div className="space-y-6">
+            <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight">
+              No medications scheduled
+            </h1>
+            <p className="text-xl text-slate-300">
+              Add a medication to personalize your tracker.
+            </p>
+            <Link
+              href="/medications"
+              className="inline-flex px-6 py-4 text-xl font-bold rounded-2xl bg-sky-500 hover:bg-sky-400 text-black"
+            >
+              Add a medication
+            </Link>
+          </div>
+        )}
 
         {/* Last dose elapsed */}
         <div className="text-xl text-slate-400">
@@ -138,7 +167,7 @@ export default function TrackPage() {
         </div>
 
         {/* Note input or action buttons */}
-        {pendingNote ? (
+        {nextMedication && (pendingNote ? (
           <div className="max-w-3xl mx-auto w-full space-y-4">
             <p className="text-2xl text-slate-300">
               {pendingNote.taken ? 'Medication taken.' : 'Marked as missed.'}{' '}
@@ -187,10 +216,17 @@ export default function TrackPage() {
               I did not take it
             </button>
           </div>
-        )}
+        ))}
 
         {/* Link to caregiver page */}
-        <div className="pt-8">
+        <div className="pt-8 flex flex-col sm:flex-row justify-center gap-6">
+          <Link
+            href="/medications"
+            className="text-2xl text-sky-300 hover:text-sky-200 underline"
+            aria-label="Manage medication schedules"
+          >
+            Manage Medications
+          </Link>
           <Link
             href="/caregiver"
             className="text-2xl text-sky-300 hover:text-sky-200 underline"

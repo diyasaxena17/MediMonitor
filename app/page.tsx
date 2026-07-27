@@ -44,6 +44,13 @@ export default function AboutPage() {
                   >
                     Caregiver Dashboard
                   </Link>
+                  <Link
+                    href="/medications"
+                    className="inline-flex items-center justify-center px-6 py-4 text-lg font-semibold rounded-2xl bg-white/10 hover:bg-white/15 text-white border border-white/15 transition"
+                    aria-label="Manage medication schedules"
+                  >
+                    Manage Medications
+                  </Link>
                   <a
                     href="/auth/logout"
                     className="inline-flex items-center justify-center px-6 py-4 text-lg font-semibold rounded-2xl bg-white/5 hover:bg-white/10 text-white border border-white/15 transition"
@@ -67,6 +74,13 @@ export default function AboutPage() {
                     aria-label="Preview the tracker"
                   >
                     Preview the tracker
+                  </Link>
+                  <Link
+                    href="/medications"
+                    className="inline-flex items-center justify-center px-6 py-4 text-lg font-semibold rounded-2xl bg-white/10 hover:bg-white/15 text-white border border-white/15 transition"
+                    aria-label="Set up medication schedules"
+                  >
+                    Set Up Medications
                   </Link>
                 </>
               )}
